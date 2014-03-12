@@ -62,6 +62,11 @@ public class World : MonoBehaviour
         if (NetworkManager.hasGameStarted)
         {
             UpdateChunks();
+
+            if (Input.GetKeyUp(KeyCode.Escape))
+            {
+                Application.LoadLevel(0);
+            }
         }
     }
 

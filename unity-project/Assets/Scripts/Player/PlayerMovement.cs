@@ -4,43 +4,89 @@ using System.Collections;
 public class PlayerMovement : MonoBehaviour
 {
     // camera rotation settings
-    public float sensitivityX = 15F;
-    public float sensitivityY = 15F;
+    public float sensitivityX = 15f;
+    public float sensitivityY = 15f;
 
-    public float minimumX = -360F;
-    public float maximumX = 360F;
+    public float minimumX = -360f;
+    public float maximumX = 360f;
 
-    public float minimumY = -60F;
-    public float maximumY = 60F;
+    public float minimumY = -60f;
+    public float maximumY = 60f;
 
-    float rotationY = 0F;
+    public float rotationY = 0f;
 
     // character motor settings
+    private Transform _camera;
+    private CharacterMotor _motor;
+    private CharacterController _controller;
 
-    private Transform camera;
-    private CharacterMotor motor;
+    // network movement settings
+    private float _lastSynchroTime = 0f;
+    private float _syncDelay = 0f;
+    private float _syncTime = 0f;
+    private Vector3 _syncStartPosition = Vector3.zero;
+    private Vector3 _syncEndPosition = Vector3.zero;
 
     private void Start()
     {
         if (networkView.isMine)
         {
             GameObject cameraGO = GameObject.FindWithTag("MainCamera");
-            camera = cameraGO.transform;
-            camera.parent = gameObject.transform;
-            camera.localPosition = new Vector3(0, .65f, 0);
-            motor = GetComponent<CharacterMotor>();
+            _camera = cameraGO.transform;
+            _camera.parent = gameObject.transform;
+            _camera.localPosition = new Vector3(0, .65f, 0);
+            _motor = GetComponent<CharacterMotor>();
+            _controller = GetComponent<CharacterController>();
         }
         else
         {
             GetComponent<CharacterMotor>().canControl = false;
-            enabled = false;
         }
     }
 
     void Update()
     {
-        CameraLook();
-        FPSInputController();
+        if (networkView.isMine)
+        {
+            CameraLook();
+            FPSInputController();
+        }
+        else
+        {
+            SyncMovement();
+        }
+    }
+
+    void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
+    {
+        Vector3 syncPosition = Vector3.zero;
+        Vector3 syncVelocity = Vector3.zero;
+        if (stream.isWriting)
+        {
+            syncPosition = transform.position;
+            stream.Serialize(ref syncPosition);
+
+            syncVelocity = _controller.velocity;
+            stream.Serialize(ref syncVelocity);
+        }
+        else
+        {
+            stream.Serialize(ref syncPosition);
+            stream.Serialize(ref syncVelocity);
+
+            _syncTime = 0f;
+            _syncDelay = Time.time - _lastSynchroTime;
+            _lastSynchroTime = Time.time;
+
+            _syncEndPosition = syncPosition + syncVelocity * _syncDelay;
+            _syncStartPosition = transform.position;
+        }
+    }
+
+    private void SyncMovement()
+    {
+        _syncTime += Time.deltaTime;
+        transform.position = Vector3.Lerp(_syncStartPosition, _syncEndPosition, _syncTime / _syncDelay);
     }
 
     /// <summary>
@@ -51,7 +97,7 @@ public class PlayerMovement : MonoBehaviour
         transform.Rotate(0, Input.GetAxis("Mouse X") * sensitivityX, 0);
         rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
         rotationY = Mathf.Clamp(rotationY, minimumY, maximumY);
-        camera.localEulerAngles = new Vector3(-rotationY, camera.localEulerAngles.y, 0);
+        _camera.localEulerAngles = new Vector3(-rotationY, _camera.localEulerAngles.y, 0);
     }
 
     /// <summary>
@@ -69,7 +115,7 @@ public class PlayerMovement : MonoBehaviour
             directionLength = directionLength * directionLength;
             directionVector = directionVector * directionLength;
         }
-        motor.inputMoveDirection = transform.rotation * directionVector;
-        motor.inputJump = Input.GetButton("Jump");
+        _motor.inputMoveDirection = transform.rotation * directionVector;
+        _motor.inputJump = Input.GetButton("Jump");
     }
 }
