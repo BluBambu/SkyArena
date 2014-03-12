@@ -53,6 +53,8 @@ public class World : MonoBehaviour
                 }
 
                 data[x, topY - 1, z] = Grass.ID;
+
+                data[x, 0, z] = BedRock.ID;
             }
         }
     }

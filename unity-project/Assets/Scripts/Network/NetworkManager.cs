@@ -177,7 +177,7 @@ public class NetworkManager : MonoBehaviour
     private void StartGame()
     {
         hasGameStarted = true;
-        world.player = (Network.Instantiate(playerPrefab, transform.position, transform.rotation, 0) as GameObject).transform;
+        world.player = (Network.Instantiate(playerPrefab, playerPrefab.GetComponent<PlayerInfo>().spawnPoint, transform.rotation, 0) as GameObject).transform;
         world.InitWorld();
     }
 }

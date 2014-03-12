@@ -20,6 +20,8 @@ public class PlayerMovement : MonoBehaviour
     private CharacterMotor _motor;
     private CharacterController _controller;
 
+    private PlayerInfo _playerInfo;
+
     // network movement settings
     private float _lastSynchroTime = 0f;
     private float _syncDelay = 0f;
@@ -37,6 +39,7 @@ public class PlayerMovement : MonoBehaviour
             _camera.localPosition = new Vector3(0, .65f, 0);
             _motor = GetComponent<CharacterMotor>();
             _controller = GetComponent<CharacterController>();
+            _playerInfo = GetComponent<PlayerInfo>();
         }
         else
         {
@@ -44,12 +47,13 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void Update()
+    private void Update()
     {
         if (networkView.isMine)
         {
             CameraLook();
             FPSInputController();
+            CheckFallDeath();
         }
         else
         {
@@ -57,7 +61,15 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
+    private void CheckFallDeath()
+    {
+        if (transform.position.y < -100)
+        {
+            _playerInfo.Die();
+        }
+    }
+
+    private void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         Vector3 syncPosition = Vector3.zero;
         Vector3 syncVelocity = Vector3.zero;
