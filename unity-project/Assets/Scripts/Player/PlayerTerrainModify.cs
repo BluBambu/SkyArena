@@ -15,7 +15,6 @@ public class PlayerTerrainModify : MonoBehaviour
     public static float TimeToPlaceBlock = 0.25f;
 
     private World world;
-    private GameObject mainCamera;
 
     private float _blockPlaceTimer;
 
@@ -32,7 +31,6 @@ public class PlayerTerrainModify : MonoBehaviour
         {
             GameObject worldGO = GameObject.Find("_Scripts");
             world = worldGO.GetComponent<World>();
-            mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
         }
     }
 
@@ -49,7 +47,7 @@ public class PlayerTerrainModify : MonoBehaviour
             {
                 if (Input.GetMouseButton(1))
                 {
-                    PlaceBlockInFront();
+                    // PlaceBlockInFront();
                 }
             }
             else

@@ -35,6 +35,8 @@ public class NetworkManager : MonoBehaviour
     /// </summary>
     public bool isBlueTeam;
 
+	private string playerName = "Enter Your Name";
+
     void Start()
     {
         world = GetComponent<World>();
@@ -64,6 +66,7 @@ public class NetworkManager : MonoBehaviour
         if (!Network.isClient && !Network.isServer)
         {
             _roomName = GUI.TextField(new Rect(100, 130, 250, 40), _roomName, 20);
+			playerName = GUI.TextField(new Rect(700, 130, 250, 40), playerName, 20);
             if (GUI.Button(new Rect(400, 100, 250, 100), "Start New Server"))
                 StartServer();
 
@@ -85,6 +88,9 @@ public class NetworkManager : MonoBehaviour
         {
             if (GUI.Button(new Rect(Screen.width / 2 - 125, 100, 250, 100), "Start New Server"))
             {
+				if (!hasTeam){
+					isBlueTeam = Random.Range(0, 1) == 0;
+				}
                 networkView.RPC("StartGame", RPCMode.AllBuffered);
                 MasterServer.UnregisterHost();
                 Network.maxConnections = -1;
@@ -166,18 +172,15 @@ public class NetworkManager : MonoBehaviour
         Network.Connect(hostData);
     }
 
-    /// <summary>
-    /// Automatically called on connecting to a server
-    /// </summary>
-    private void OnConnectedToServer()
-    {
-    }
-
     [RPC]
     private void StartGame()
     {
         hasGameStarted = true;
         world.player = (Network.Instantiate(playerPrefab, playerPrefab.GetComponent<PlayerInfo>().spawnPoint, transform.rotation, 0) as GameObject).transform;
+
+        world.player.GetComponent<NetworkView>().RPC("SetTeam", RPCMode.AllBuffered, !isBlueTeam);
+		world.player.GetComponent<NetworkView>().RPC("SetName", RPCMode.AllBuffered, playerName);
+
         world.InitWorld();
     }
 }
