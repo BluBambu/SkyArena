@@ -10,6 +10,7 @@ public class Chunk : MonoBehaviour
     private readonly Vector2 _stone = new Vector2(2, 0);
     private readonly Vector2 _dirt = new Vector2(3, 0);
     private readonly Vector3 _bedrock = new Vector3(0, 1);
+    private readonly Vector3 _break = new Vector3(1, 1);
 
     /// <summary>
     /// The percent width of a single texture in the texture atlas
@@ -34,6 +35,7 @@ public class Chunk : MonoBehaviour
     private List<Vector2> _uv;
     private Mesh _mesh;
     private MeshCollider _meshCol;
+    private PlayerTerrainModify _playerTerrainModify;
 
     // util field used in mesh generation
     private int _faceCount;
@@ -46,6 +48,7 @@ public class Chunk : MonoBehaviour
 
         _mesh = GetComponent<MeshFilter>().mesh;
         _meshCol = GetComponent<MeshCollider>();
+        _playerTerrainModify = world.player.GetComponent<PlayerTerrainModify>();
 
         GenerateMesh();
     }
@@ -72,30 +75,30 @@ public class Chunk : MonoBehaviour
                 {
                     if (LocalBlockAt(x, y, z) != Air.ID)
                     {
-                        if (LocalBlockAt(x, y + 1, z) == Air.ID)
-                        {
-                            CubeTop(x, y, z, LocalBlockAt(x, y, z));
-                        }
-                        if (LocalBlockAt(x, y - 1, z) == Air.ID)
-                        {
-                            CubeBottom(x, y, z, LocalBlockAt(x, y, z));
-                        }
-                        if (LocalBlockAt(x + 1, y, z) == Air.ID)
-                        {
-                            CubeEast(x, y, z, LocalBlockAt(x, y, z));
-                        }
-                        if (LocalBlockAt(x - 1, y, z) == Air.ID)
-                        {
-                            CubeWest(x, y, z, LocalBlockAt(x, y, z));
-                        }
-                        if (LocalBlockAt(x, y, z + 1) == Air.ID)
-                        {
-                            CubeNorth(x, y, z, LocalBlockAt(x, y, z));
-                        }
-                        if (LocalBlockAt(x, y, z - 1) == Air.ID)
-                        {
-                            CubeSouth(x, y, z, LocalBlockAt(x, y, z));
-                        }
+                            if (LocalBlockAt(x, y + 1, z) == Air.ID)
+                            {
+                                CubeTop(x, y, z, LocalBlockAt(x, y, z));
+                            }
+                            if (LocalBlockAt(x, y - 1, z) == Air.ID)
+                            {
+                                CubeBottom(x, y, z, LocalBlockAt(x, y, z));
+                            }
+                            if (LocalBlockAt(x + 1, y, z) == Air.ID)
+                            {
+                                CubeEast(x, y, z, LocalBlockAt(x, y, z));
+                            }
+                            if (LocalBlockAt(x - 1, y, z) == Air.ID)
+                            {
+                                CubeWest(x, y, z, LocalBlockAt(x, y, z));
+                            }
+                            if (LocalBlockAt(x, y, z + 1) == Air.ID)
+                            {
+                                CubeNorth(x, y, z, LocalBlockAt(x, y, z));
+                            }
+                            if (LocalBlockAt(x, y, z - 1) == Air.ID)
+                            {
+                                CubeSouth(x, y, z, LocalBlockAt(x, y, z));
+                            }
                     }
                 }
             }

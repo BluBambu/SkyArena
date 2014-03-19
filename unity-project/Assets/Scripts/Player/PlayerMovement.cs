@@ -61,6 +61,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Checks if the player has fallen off the map, if so then kill them
+    /// </summary>
     private void CheckFallDeath()
     {
         if (transform.position.y < -100)
@@ -95,6 +98,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Network compensation, interpolates player position so that they're displayed smoothly
+    /// </summary>
     private void SyncMovement()
     {
         _syncTime += Time.deltaTime;

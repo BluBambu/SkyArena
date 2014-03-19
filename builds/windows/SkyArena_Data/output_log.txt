@@ -1,11 +1,11 @@
 Initialize engine version: 4.3.4f1 (e444f76e01cd)
 GfxDevice: creating device client; threaded=1
 Direct3D:
-    Version:  Direct3D 9.0c [nvd3dum.dll 9.18.13.2716]
-    Renderer: NVIDIA GeForce GT 750M   
-    Vendor:   NVIDIA
-    VRAM:     1986 MB (via DXGI)
-    Caps:     Shader=30 DepthRT=1 NativeDepth=1 NativeShadow=1 DF16=0 INTZ=1 RAWZ=0 NULL=1 RESZ=0 SlowINTZ=0
+    Version:  Direct3D 9.0c [aticfx32.dll 8.17.10.1191]
+    Renderer: ATI Radeon HD 5700 Series
+    Vendor:   ATI
+    VRAM:     1013 MB (via DXGI)
+    Caps:     Shader=30 DepthRT=1 NativeDepth=1 NativeShadow=1 DF16=1 INTZ=1 RAWZ=0 NULL=1 RESZ=1 SlowINTZ=1
 Begin MonoManager ReloadAssembly
 Platform assembly: C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\UnityEngine.dll (this message is harmless)
 Loading C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\UnityEngine.dll into Unity Child Domain
@@ -15,29 +15,54 @@ Platform assembly: C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyA
 Loading C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
 Platform assembly: C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\Assembly-UnityScript-firstpass.dll (this message is harmless)
 Loading C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\Assembly-UnityScript-firstpass.dll into Unity Child Domain
-- Completed reload, in  0.226 seconds
-desktop: 1920x1080 60Hz; virtual: 3840x1200 at 0,0
+- Completed reload, in  0.085 seconds
+desktop: 1920x1080 60Hz; virtual: 3840x1080 at -1920,0
 <RI> Initializing input.
 <RI> Input initialized.
-Received pong from 169.254.125.176:25565
- 
-(Filename:  Line: 831)
-
-Received pong from 169.254.242.114:25565
- 
-(Filename:  Line: 831)
-
-Received pong from 192.168.11.129:25565
- 
-(Filename:  Line: 831)
-
+Platform assembly: C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\System.Core.dll (this message is harmless)
 Platform assembly: C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\Boo.Lang.dll (this message is harmless)
 NullReferenceException: Object reference not set to an instance of an object
   at PlayerMovement.OnSerializeNetworkView (UnityEngine.BitStream stream, NetworkMessageInfo info) [0x00000] in <filename unknown>:0 
  
 (Filename:  Line: -1)
 
-The server has disconnected from the client. Most likely the server has shut down.
+cahne
  
-(Filename:  Line: 740)
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+cahne
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+cahne
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+cahne
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+cahne
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+cahne
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+cahne
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+cahne
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+cahne
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+cahne
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
 

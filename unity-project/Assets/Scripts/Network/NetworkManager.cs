@@ -35,7 +35,10 @@ public class NetworkManager : MonoBehaviour
     /// </summary>
     public bool isBlueTeam;
 
-	private string playerName = "Enter Your Name";
+    /// <summary>
+    /// The name of the player
+    /// </summary>
+	private string _playerName = "Enter Your Name";
 
     void Start()
     {
@@ -66,7 +69,8 @@ public class NetworkManager : MonoBehaviour
         if (!Network.isClient && !Network.isServer)
         {
             _roomName = GUI.TextField(new Rect(100, 130, 250, 40), _roomName, 20);
-			playerName = GUI.TextField(new Rect(700, 130, 250, 40), playerName, 20);
+			_playerName = GUI.TextField(new Rect(700, 130, 250, 40), _playerName, 20);
+
             if (GUI.Button(new Rect(400, 100, 250, 100), "Start New Server"))
                 StartServer();
 
@@ -96,11 +100,17 @@ public class NetworkManager : MonoBehaviour
                 Network.maxConnections = -1;
             }
 
-            if (GUI.Button(new Rect(Screen.width / 2 - 400, 200, 250, 100), "Join The Blue Team"))
-                JoinBlueTeam();
+            if (GUI.Button(new Rect(Screen.width/2 - 400, 200, 250, 100), "Join The Blue Team"))
+            {
+                hasTeam = true;
+                isBlueTeam = true;
+            }
 
-            if (GUI.Button(new Rect(Screen.width / 2 + 150, 200, 250, 100), "Join The Red Team"))
-                JoinRedTeam();
+            if (GUI.Button(new Rect(Screen.width/2 + 150, 200, 250, 100), "Join The Red Team"))
+            {
+                hasTeam = true;
+                isBlueTeam = false;
+            }
 
             if (hasTeam && isBlueTeam)
             {
@@ -115,11 +125,17 @@ public class NetworkManager : MonoBehaviour
         {
             GUI.Label(new Rect(400, 100, 250, 100), "Select a team to join until the host starts a game...");
 
-            if (GUI.Button(new Rect(Screen.width / 2 - 400, 200, 250, 100), "Join The Blue Team"))
-                JoinBlueTeam();
+            if (GUI.Button(new Rect(Screen.width/2 - 400, 200, 250, 100), "Join The Blue Team"))
+            {
+                hasTeam = true;
+                isBlueTeam = true;
+            }
 
-            if (GUI.Button(new Rect(Screen.width / 2 + 150, 200, 250, 100), "Join The Red Team"))
-                JoinRedTeam();
+            if (GUI.Button(new Rect(Screen.width/2 + 150, 200, 250, 100), "Join The Red Team"))
+            {
+                hasTeam = true;
+                isBlueTeam = false;
+            }
 
             if (hasTeam && isBlueTeam)
             {
@@ -130,18 +146,6 @@ public class NetworkManager : MonoBehaviour
                 GUI.Label(new Rect(Screen.width / 2 - 65, 250, 250, 100), "You're on the red team");
             }
         }
-    }
-
-    private void JoinRedTeam()
-    {
-        hasTeam = true;
-        isBlueTeam = false;
-    }
-
-    private void JoinBlueTeam()
-    {
-        hasTeam = true;
-        isBlueTeam = true;
     }
 
     /// <summary>
@@ -155,7 +159,6 @@ public class NetworkManager : MonoBehaviour
     /// <summary>
     /// Automatically called when a master server event occurs
     /// </summary>
-    /// <param name="masterEvent"></param>
     private void OnMasterServerEvent(MasterServerEvent masterEvent)
     {
         if (masterEvent == MasterServerEvent.HostListReceived)
@@ -172,6 +175,9 @@ public class NetworkManager : MonoBehaviour
         Network.Connect(hostData);
     }
 
+    /// <summary>
+    /// Initializes the initial game state and sets player flags like name and team
+    /// </summary>
     [RPC]
     private void StartGame()
     {
@@ -179,7 +185,7 @@ public class NetworkManager : MonoBehaviour
         world.player = (Network.Instantiate(playerPrefab, playerPrefab.GetComponent<PlayerInfo>().spawnPoint, transform.rotation, 0) as GameObject).transform;
 
         world.player.GetComponent<NetworkView>().RPC("SetTeam", RPCMode.AllBuffered, !isBlueTeam);
-		world.player.GetComponent<NetworkView>().RPC("SetName", RPCMode.AllBuffered, playerName);
+		world.player.GetComponent<NetworkView>().RPC("SetName", RPCMode.AllBuffered, _playerName);
 
         world.InitWorld();
     }

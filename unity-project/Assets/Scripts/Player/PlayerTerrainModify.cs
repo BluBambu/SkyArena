@@ -1,9 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 
 public class PlayerTerrainModify : MonoBehaviour
 {
+    /// <summary>
+    /// The amount of resistance that damage block gain back every second
+    /// </summary>
+    private const float BlockRecoverRate = 1f;
+
+    /// <summary>
+    /// The rate at which the pickaxe tool breaks down resistance
+    /// </summary>
+    private const float PickaxeDamageRate = 5f;
+
     /// <summary>
     /// The maximum distance the player can be from a block to modify it
     /// </summary>
@@ -16,47 +28,104 @@ public class PlayerTerrainModify : MonoBehaviour
 
     private World world;
 
-    private float _blockPlaceTimer;
+    public Dictionary<Vector3, float> blockDamages;
 
-    private float _blockBreakTimer;
+    private bool _isBreakingBlock;
+
+    private ParticleSystem _breakParticleSystem;
 
     void OnGUI()
     {
         GUI.Box(new Rect(Screen.width / 2, Screen.height / 2, 10, 10), "");
     }
 
-    private void Awake()
+    private void Start()
     {
-        if (networkView.isMine)
-        {
-            GameObject worldGO = GameObject.Find("_Scripts");
-            world = worldGO.GetComponent<World>();
-        }
+        GameObject worldGO = GameObject.Find("_Scripts");
+        world = worldGO.GetComponent<World>();
+        blockDamages = new Dictionary<Vector3, float>();
+        _breakParticleSystem = transform.FindChild("BreakParticleSystem").GetComponent<ParticleSystem>();
     }
 
     private void Update()
     {
-        if (networkView.isMine)
+        foreach (var pos in blockDamages.Keys.ToList())
         {
-            if (Input.GetMouseButton(0))
-            {
-                DestroyBlockInFront();
-            }
+            blockDamages[pos] -= BlockRecoverRate * Time.deltaTime;
+        }
 
-            if (_blockPlaceTimer == 0)
-            {
-                if (Input.GetMouseButton(1))
-                {
-                    // PlaceBlockInFront();
-                }
-            }
-            else
-            {
-                _blockPlaceTimer -= Time.deltaTime;
+        var toRemove = blockDamages.Where(pair => pair.Value < 0)
+                     .Select(pair => pair.Key)
+                     .ToList();
 
-                _blockPlaceTimer = Math.Max(_blockPlaceTimer, 0);
+        foreach (var key in toRemove)
+        {
+            blockDamages.Remove(key);
+        }
+
+        if (_isBreakingBlock)
+        {
+            if (!_breakParticleSystem.isPlaying)
+            {
+                _breakParticleSystem.Play();
             }
         }
+        else
+        {
+            _breakParticleSystem.Stop();
+        }
+    }
+
+    public void DamageBlockInFront()
+    {
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            if (hit.distance <= MaxDistToModifyBlock)
+            {
+                Debug.DrawRay(ray.origin + new Vector3(1, 1, 1), ray.direction * 5, Color.green, 2);
+
+                Vector3 hitPos = hit.point;
+
+                hitPos += new Vector3(hit.normal.x, hit.normal.y, hit.normal.z) * -0.5f;
+
+                int hitX = (int)hitPos.x;
+                int hitY = (int)hitPos.y + 1;
+                int hitZ = (int)hitPos.z;
+
+                networkView.RPC("DamageBlock", RPCMode.AllBuffered, new Vector3(hitX, hitY, hitZ), PickaxeDamageRate * Time.deltaTime);
+            }
+        }
+    }
+
+    [RPC]
+    public void SetIsBreakingBlock(bool isBreaking)
+    {
+        _isBreakingBlock = isBreaking;
+    }
+
+    /// <summary>
+    /// Records damage on a certain block, if it is higher than its resistance then it will be destroyed
+    /// </summary>
+    [RPC]
+    private void DamageBlock(Vector3 pos, float damage)
+    {
+        if (!blockDamages.ContainsKey(pos))
+        {
+            blockDamages.Add(pos, 0);
+        }
+        blockDamages[pos] += damage;
+
+        float blockResistance = Blocks.GetResistance(world.BlockAt((int)pos.x, (int)pos.y, (int)pos.z));
+
+        if (blockResistance != -1 && blockDamages[pos] >= blockResistance)
+        {
+            ChangeBlockAt(pos, Air.ID);
+        }
+
+        _breakParticleSystem.transform.position = pos + new Vector3(.5f, 0, .5f);
     }
 
     /// <summary>
@@ -81,8 +150,7 @@ public class PlayerTerrainModify : MonoBehaviour
                 int hitY = (int)hitPos.y + 1;
                 int hitZ = (int)hitPos.z;
 
-                world.ChangeBlock(hitX, hitY, hitZ, Air.ID);
-                world.UpdateChunk(hitX, hitY, hitZ);
+                ChangeBlockAt(hitX, hitY, hitZ, 0);
             }
         }
     }
@@ -109,15 +177,19 @@ public class PlayerTerrainModify : MonoBehaviour
                 int hitY = (int)hitPos.y + 1;
                 int hitZ = (int)hitPos.z;
 
-                world.ChangeBlock(hitX, hitY, hitZ, Dirt.ID);
-                world.UpdateChunk(hitX, hitY, hitZ);
+                ChangeBlockAt(hitX, hitY, hitZ, 0);
             }
         }
-        ResetBlockPlaceTimer();
     }
 
-    private void ResetBlockPlaceTimer()
+    public void ChangeBlockAt(Vector3 pos, byte to)
     {
-        _blockPlaceTimer = TimeToPlaceBlock;
+        world.ChangeBlock((int)pos.x, (int)pos.y, (int)pos.z, to);
+        world.UpdateChunk((int)pos.x, (int)pos.y, (int)pos.z);
+    }
+    public void ChangeBlockAt(int x, int y, int z, byte to)
+    {
+        world.ChangeBlock(x, y, z, to);
+        world.UpdateChunk(x, y, z);
     }
 }
