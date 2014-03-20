@@ -31,7 +31,7 @@ public class PlayerTerrainModify : MonoBehaviour
     public Dictionary<Vector3, float> blockDamages;
 
     private bool _isBreakingBlock;
-
+    private PlayerInfo _playerInfo;
     private ParticleSystem _breakParticleSystem;
 
     void OnGUI()
@@ -45,6 +45,7 @@ public class PlayerTerrainModify : MonoBehaviour
         world = worldGO.GetComponent<World>();
         blockDamages = new Dictionary<Vector3, float>();
         _breakParticleSystem = transform.FindChild("BreakParticleSystem").GetComponent<ParticleSystem>();
+        _playerInfo = GetComponent<PlayerInfo>();
     }
 
     private void Update()
@@ -122,6 +123,7 @@ public class PlayerTerrainModify : MonoBehaviour
 
         if (blockResistance != -1 && blockDamages[pos] >= blockResistance)
         {
+            _playerInfo.AddBlockToInv(world.BlockAt((int)pos.x, (int)pos.y, (int)pos.z));
             ChangeBlockAt(pos, Air.ID);
         }
 
@@ -140,8 +142,6 @@ public class PlayerTerrainModify : MonoBehaviour
         {
             if (hit.distance <= MaxDistToModifyBlock)
             {
-                Debug.DrawRay(ray.origin + new Vector3(1, 1, 1), ray.direction * 5, Color.green, 2);
-
                 Vector3 hitPos = hit.point;
 
                 hitPos += new Vector3(hit.normal.x, hit.normal.y, hit.normal.z) * -0.5f;
@@ -158,7 +158,7 @@ public class PlayerTerrainModify : MonoBehaviour
     /// <summary>
     /// Attempts place a block on top of the block that the crusor is currently pointed at
     /// </summary>
-    public void PlaceBlockInFront()
+    public bool PlaceBlockInFront(byte block)
     {
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
@@ -167,8 +167,6 @@ public class PlayerTerrainModify : MonoBehaviour
         {
             if (hit.distance <= MaxDistToModifyBlock)
             {
-                Debug.DrawRay(ray.origin + new Vector3(1, 1, 1), ray.direction * 5, Color.green, 2);
-
                 Vector3 hitPos = hit.point;
 
                 hitPos += new Vector3(hit.normal.x, hit.normal.y, hit.normal.z) * 0.5f;
@@ -177,9 +175,14 @@ public class PlayerTerrainModify : MonoBehaviour
                 int hitY = (int)hitPos.y + 1;
                 int hitZ = (int)hitPos.z;
 
-                ChangeBlockAt(hitX, hitY, hitZ, 0);
+                if (!Physics.CheckCapsule(new Vector3(hitX + .5f, hitY, hitZ + 0.5f), new Vector3(hitX + .5f, hitY + 1f, hitZ + 0.5f), .5f))
+                {
+                    ChangeBlockAt(hitX, hitY, hitZ, block);
+                    return true;
+                }
             }
         }
+        return false;
     }
 
     public void ChangeBlockAt(Vector3 pos, byte to)

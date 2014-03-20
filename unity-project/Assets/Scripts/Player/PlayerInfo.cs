@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 
@@ -7,7 +8,7 @@ public class PlayerInfo : MonoBehaviour
 {
     public enum ActiveHandItem
     {
-        Weapon, Pickaxe, Block, None
+        Slot1, Slot2, Slot3, Weapon, Pickaxe
     }
 
     public ActiveHandItem activeHandItem;
@@ -37,7 +38,7 @@ public class PlayerInfo : MonoBehaviour
         }
     }
 
-    public Dictionary<byte, int> blockInv;
+    public SortedDictionary<byte, int> blockInv;
 
     /// <summary>
     /// Backing field for the health property
@@ -73,9 +74,38 @@ public class PlayerInfo : MonoBehaviour
         }
     }
 
+    private void OnGUI()
+    {
+        GUI.Button(new Rect(50, 125, 50, 50), "1");
+        GUI.Label(new Rect(125, 140, 50, 50), "Weapon");
+        GUI.Button(new Rect(50, 200, 50, 50), "2");
+        GUI.Label(new Rect(125, 215, 50, 50), "Pickaxe");
+
+        if (activeHandItem == ActiveHandItem.Weapon)
+        {
+            GUI.Label(new Rect(105, 140, 50, 50), "<");
+        }
+        else if (activeHandItem == ActiveHandItem.Pickaxe)
+        {
+            GUI.Label(new Rect(105, 215, 50, 50), "<");
+        }
+
+        var keys = blockInv.Keys.ToArray();
+
+        for (int i = 0; i < keys.Length; i++)
+        {
+            GUI.Button(new Rect(50, 200 + 75 * (i + 1), 50, 50), i + 3 + "");
+            GUI.Label(new Rect(125, 215 + 75 * (i + 1), 50, 50), Blocks.GetName(keys[i]) + ": " + blockInv[keys[i]]);
+            if ((int)activeHandItem == i)
+            {
+                GUI.Label(new Rect(105, 215 + 75 * (i + 1), 50, 50), "<");
+            }
+        }
+    }
+
     void Start()
     {
-        blockInv = new Dictionary<byte, int>();
+        blockInv = new SortedDictionary<byte, int>();
         _mesh = transform.FindChild("Mesh").gameObject;
         _nameTag = transform.FindChild("NameTag").gameObject.GetComponent<TextMesh>();
         _playerTerrainModify = GetComponent<PlayerTerrainModify>();
@@ -112,6 +142,19 @@ public class PlayerInfo : MonoBehaviour
         {
             CheckHandItemSwitch();
             CheckMouseInput();
+            CheckInv();
+        }
+    }
+
+    private void CheckInv()
+    {
+        var toRemove = blockInv.Where(pair => pair.Value <= 0)
+             .Select(pair => pair.Key)
+             .ToList();
+
+        foreach (var key in toRemove)
+        {
+            blockInv.Remove(key);
         }
     }
 
@@ -125,6 +168,18 @@ public class PlayerInfo : MonoBehaviour
         {
             activeHandItem = ActiveHandItem.Pickaxe;
         }
+        else if (Input.GetKeyUp(KeyCode.Alpha3))
+        {
+            activeHandItem = ActiveHandItem.Slot1;
+        }
+        else if (Input.GetKeyUp(KeyCode.Alpha4))
+        {
+            activeHandItem = ActiveHandItem.Slot2;
+        }
+        else if (Input.GetKeyUp(KeyCode.Alpha5))
+        {
+            activeHandItem = ActiveHandItem.Slot3;
+        }
     }
 
     private void CheckMouseInput()
@@ -133,19 +188,76 @@ public class PlayerInfo : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            var keys = blockInv.Keys.ToArray();
             switch (activeHandItem)
             {
                 case ActiveHandItem.Weapon:
                     _playerWeapon.Fire();
                     break;
+                case ActiveHandItem.Slot1:
+                    if (keys.Length > 0)
+                    {
+                        if (_playerTerrainModify.PlaceBlockInFront((byte)keys[0]))
+                        {
+                            blockInv[keys[0]]--;
+                        }
+                    }
+                    break;
+                case ActiveHandItem.Slot2:
+                    if (keys.Length > 1)
+                    {
+                        if (_playerTerrainModify.PlaceBlockInFront((byte)keys[1]))
+                        {
+                            blockInv[keys[1]]--;
+                        }
+                    }
+                    break;
+                case ActiveHandItem.Slot3:
+                    if (keys.Length > 2)
+                    {
+                        if (_playerTerrainModify.PlaceBlockInFront((byte)keys[2]))
+                        {
+                            blockInv[keys[2]]--;
+                        }
+                    }
+                    break;
             }
         }
         else if (Input.GetMouseButtonDown(1))
         {
+            var keys = blockInv.Keys.ToArray();
             switch (activeHandItem)
             {
                 case ActiveHandItem.Weapon:
                     _playerWeapon.Fire();
+                    break;
+                case ActiveHandItem.Slot1:
+                    if (keys.Length > 0)
+                    {
+                        if (_playerTerrainModify.PlaceBlockInFront((byte)keys[0]))
+                        {
+                            blockInv[keys[0]]--;
+                        }
+                    }
+                    break;
+                case ActiveHandItem.Slot2:
+                    if (keys.Length > 1)
+                    {
+                        if (_playerTerrainModify.PlaceBlockInFront((byte)keys[1]))
+                        {
+
+                            blockInv[keys[1]]--;
+                        }
+                    }
+                    break;
+                case ActiveHandItem.Slot3:
+                    if (keys.Length > 2)
+                    {
+                        if (_playerTerrainModify.PlaceBlockInFront((byte)keys[2]))
+                        {
+                            blockInv[keys[2]]--;
+                        }
+                    }
                     break;
             }
         }
@@ -207,6 +319,25 @@ public class PlayerInfo : MonoBehaviour
         _nameTag.text = _playerName;
         var rotate = Quaternion.LookRotation(Camera.main.transform.position - _nameTag.gameObject.transform.position);
         _nameTag.gameObject.transform.rotation = Quaternion.Slerp(_nameTag.gameObject.transform.rotation, rotate, 1f);
+    }
+
+    public void AddBlockToInv(byte block)
+    {
+        if (block == BedRock.ID || block == Air.ID)
+        {
+            return;
+        }
+
+        if (block == Grass.ID)
+        {
+            block = Dirt.ID;
+        }
+
+        if (!blockInv.ContainsKey(block))
+        {
+            blockInv.Add(block, 0);
+        }
+        blockInv[block]++;
     }
 
     /// <summary>

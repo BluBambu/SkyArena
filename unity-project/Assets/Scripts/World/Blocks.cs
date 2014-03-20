@@ -51,4 +51,21 @@ public class Blocks
         }
         return -1;
     }
+    public static string GetName(byte ID)
+    {
+        switch (ID)
+        {
+            case Air.ID:
+                return "Air";
+            case Grass.ID:
+                return "Grass";
+            case Dirt.ID:
+                return "Dirt";
+            case Stone.ID:
+                return "Stone";
+            case BedRock.ID:
+                return "BedRock";
+        }
+        return null;
+    }
 }

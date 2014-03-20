@@ -23,7 +23,7 @@ public class PlayerWeapon : MonoBehaviour
 
     public static readonly int damage = 10;
 
-    public static readonly float missileSpeed = .25f;
+    public static readonly float missileSpeed = 1f;
 
     private float reloadTimer;
 

@@ -15,7 +15,14 @@ Platform assembly: C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyA
 Loading C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
 Platform assembly: C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\Assembly-UnityScript-firstpass.dll (this message is harmless)
 Loading C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\Assembly-UnityScript-firstpass.dll into Unity Child Domain
-- Completed reload, in  0.064 seconds
+- Completed reload, in  0.075 seconds
 desktop: 1920x1080 60Hz; virtual: 3840x1080 at -1920,0
 <RI> Initializing input.
 <RI> Input initialized.
+Platform assembly: C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\System.dll (this message is harmless)
+Platform assembly: C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\System.Core.dll (this message is harmless)
+Server Initialized
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+Platform assembly: C:\Users\Wenjie\Documents\GitHub\SkyArena\builds\windows\SkyArena_Data\Managed\Boo.Lang.dll (this message is harmless)
