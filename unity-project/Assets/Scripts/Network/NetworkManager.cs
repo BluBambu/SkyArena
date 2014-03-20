@@ -40,6 +40,10 @@ public class NetworkManager : MonoBehaviour
     /// </summary>
 	private string _playerName = "Enter Your Name";
 
+    public int bluTeamKills;
+
+    public int redTeamKills;
+
     void Start()
     {
         world = GetComponent<World>();
@@ -146,6 +150,11 @@ public class NetworkManager : MonoBehaviour
                 GUI.Label(new Rect(Screen.width / 2 - 65, 250, 250, 100), "You're on the red team");
             }
         }
+        else if (hasGameStarted)
+        {
+            GUI.Label(new Rect(50, 50, 250, 100), "Blue Team Kills: " + redTeamKills);
+            GUI.Label(new Rect(50, 80, 250, 100), "Red Team Kills: " + bluTeamKills);
+        }
     }
 
     /// <summary>
@@ -182,11 +191,23 @@ public class NetworkManager : MonoBehaviour
     private void StartGame()
     {
         hasGameStarted = true;
-        world.player = (Network.Instantiate(playerPrefab, playerPrefab.GetComponent<PlayerInfo>().spawnPoint, transform.rotation, 0) as GameObject).transform;
+        world.player = (Network.Instantiate(playerPrefab, transform.position, transform.rotation, 0) as GameObject).transform;
 
         world.player.GetComponent<NetworkView>().RPC("SetTeam", RPCMode.AllBuffered, !isBlueTeam);
 		world.player.GetComponent<NetworkView>().RPC("SetName", RPCMode.AllBuffered, _playerName);
 
         world.InitWorld();
+    }
+
+    [RPC]
+    public void IncreaseBluTeamKills()
+    {
+        bluTeamKills++;
+    }
+
+    [RPC]
+    public void IncreaseRedTeamKills()
+    {
+        redTeamKills++;
     }
 }

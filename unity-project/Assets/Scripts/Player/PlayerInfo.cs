@@ -10,9 +10,6 @@ public class PlayerInfo : MonoBehaviour
         Weapon, Pickaxe, Block, None
     }
 
-    [HideInInspector]
-    public Vector3 spawnPoint;
-
     public ActiveHandItem activeHandItem;
 
     /// <summary>
@@ -61,10 +58,10 @@ public class PlayerInfo : MonoBehaviour
     /// The name of the player
     /// </summary>
     private string _playerName;
-
+    private NetworkManager _networkManager;
     private PlayerTerrainModify _playerTerrainModify;
     private PlayerWeapon _playerWeapon;
-
+    public bool isBluTeam;
     private bool _isBreakingBlock;
     public bool IsBreakingBlock
     {
@@ -76,20 +73,24 @@ public class PlayerInfo : MonoBehaviour
         }
     }
 
-    private void Awake()
-    {
-        spawnPoint = new Vector3(World.worldX / 2, World.worldY, World.worldZ / 2);
-    }
-
     void Start()
     {
         blockInv = new Dictionary<byte, int>();
-        transform.position = spawnPoint;
         _mesh = transform.FindChild("Mesh").gameObject;
         _nameTag = transform.FindChild("NameTag").gameObject.GetComponent<TextMesh>();
         _playerTerrainModify = GetComponent<PlayerTerrainModify>();
         _playerWeapon = GetComponent<PlayerWeapon>();
         activeHandItem = ActiveHandItem.Pickaxe;
+        _networkManager = GameObject.Find("_Scripts").GetComponent<NetworkManager>();
+
+        if (isBluTeam)
+        {
+            transform.position = World.BluTeamRespawnPoint;
+        }
+        else
+        {
+            transform.position = World.RedTeamRespawnPoint;
+        }
     }
 
     void Update()
@@ -180,7 +181,22 @@ public class PlayerInfo : MonoBehaviour
     /// </summary>
     public void Die()
     {
-        transform.position = spawnPoint;
+        if (isBluTeam)
+        {
+            transform.position = World.BluTeamRespawnPoint;
+            if (networkView.isMine)
+            {
+                _networkManager.networkView.RPC("IncreaseRedTeamKills", RPCMode.AllBuffered);
+            }
+        }
+        else
+        {
+            transform.position = World.RedTeamRespawnPoint;
+            if (networkView.isMine)
+            {
+                _networkManager.networkView.RPC("IncreaseBluTeamKills", RPCMode.AllBuffered);
+            }
+        }
     }
 
     /// <summary>
@@ -200,6 +216,7 @@ public class PlayerInfo : MonoBehaviour
     public void SetTeam(bool isRedTeam)
     {
         gameObject.layer = isRedTeam ? Layers.RedTeam : Layers.BluTeam;
+        isBluTeam = !isRedTeam;
     }
 
     /// <summary>

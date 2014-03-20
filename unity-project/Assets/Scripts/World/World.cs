@@ -3,6 +3,16 @@ using System.Collections;
 
 public class World : MonoBehaviour
 {
+    /// <summary>
+    /// The spawn point for the blu team
+    /// </summary>
+    public static readonly Vector3 BluTeamRespawnPoint = new Vector3(worldX / 4, worldY, worldZ / 2);
+
+    /// <summary>
+    /// The spawn point for the red team;
+    /// </summary>
+    public static readonly Vector3 RedTeamRespawnPoint = new Vector3(worldX * 3 / 4, worldY, worldZ / 2);
+
     [HideInInspector]
     public Transform player;
 
@@ -22,9 +32,9 @@ public class World : MonoBehaviour
     public const int ChunkSize = 16;
 
     // Sizes of the world
-    public const int worldX = 512;
+    public const int worldX = 256;
     public const int worldY = 64;
-    public const int worldZ = 512;
+    public const int worldZ = 256;
 
     public GameObject chunkPrefab;
     public Chunk[, ,] chunks;
